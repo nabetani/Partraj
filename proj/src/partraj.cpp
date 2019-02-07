@@ -11,6 +11,7 @@
 #include <random>
 
 using namespace std::string_literals;
+using namespace std::complex_literals;
 using complex = std::complex<double>;
 constexpr double PI = 3.14159'26535'89793'23846'26433'83279'50288;
 
@@ -29,25 +30,40 @@ void write_image(cv::Mat const &image, std::string const &filename) {
 std::vector<std::vector<pa>> generate_particles() {
   constexpr int N = 100;
   std::mt19937 mt(0);
-  std::uniform_real_distribution<> rand(0,PI*2);
+  std::uniform_real_distribution<> dir_rand(0,PI*2);
+  std::uniform_real_distribution<> pos_rand(-1,1);
   std::vector<std::vector<pa>> r;
   r.reserve(N);
-  double v0 = 1e-3;
+  double v0 = 3e-3;
   for (int i = 0; i < N; ++i) {
-    double t = (2 * PI) * i / N;
-    double d = rand(mt);
-    r.push_back(std::vector<pa>{pa(std::polar(1.0, t), std::polar(v0, d))});
+    //double t = (2 * PI) * i / N;
+    auto d = dir_rand(mt);
+    auto x = pos_rand(mt);
+    auto y = pos_rand(mt);
+    r.push_back(std::vector<pa>{pa(x+y*1.0i, std::polar(v0, d))});
   }
   return r;
 }
 
 void move_particles(std::vector<std::vector<pa>> &parts) {
-  int tmax = 100;
+  int tmax = 2000;
   for( int t=0 ; t<tmax ; ++t ){
-    for( auto & pas : parts ){
-      auto last = pas.back();
+    for( auto & me : parts ){
+      complex a=0;
+      for( auto const & o : parts ){
+        if (&me==&o){
+          continue;
+        }
+        auto dist = me.back().p - o.back().p;
+        auto power = std::polar(1.0/(std::abs(dist)+1e-10), std::arg(dist));
+        a-=power;
+      }
+      me.back().v+=a*1e-6;
+    }
+    for( auto & me : parts ){
+      auto last = me.back();
       last.p += last.v;
-      pas.push_back(last);
+      me.push_back(last);
     }
   }
 }
