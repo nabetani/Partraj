@@ -3,7 +3,8 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/usr/local/Cellar/opencv/4.0.1/include/opencv4"
             ],
             "defines": [],
             "macFrameworkPath": [
