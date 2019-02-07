@@ -103,7 +103,8 @@ void draw(cv::Mat &image, std::vector<std::vector<pa>> const &parts) {
       auto const &o1 = parts[ix][t + 1];
       auto const &p0 = trans(o0.p);
       auto const &p1 = trans(o1.p);
-      auto thick = std::min<double>(100, 500 * std::abs(o0.v + o1.v) + 1);
+      auto tcap = 1+( t<last*0.9 ? 1 : (last-t)*10.0/last ) * 100;
+      auto thick = std::min<double>(tcap, 500 * std::abs(o0.v + o1.v) + 1);
       cv::line(image, p0, p1, col, thick, cv::LINE_AA);
       // cv::circle( image, trans(p.p), 5, col, -1/*fill*/, cv::LINE_AA, 0);
     }
